@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 journal_match_filter.py -- find the journals in VIVO, and match them by issn to

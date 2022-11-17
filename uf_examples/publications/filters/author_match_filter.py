@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 author_match_filter.py -- find the authors in VIVO, and match them to authors

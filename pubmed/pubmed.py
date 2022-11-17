@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
     pubmed.py -- tools for identifying pubmed papers, retrieving citation data for pubmed papers, and loading those

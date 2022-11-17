@@ -1,4 +1,5 @@
-#!/usr/bin/env/python
+#!/usr/bin/env python3
+
 
 """
     setup.py: The VIVO Pump

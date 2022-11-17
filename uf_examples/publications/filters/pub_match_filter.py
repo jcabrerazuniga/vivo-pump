@@ -48,7 +48,7 @@ def get_vivo_academic_articles(parms):
     bindings = results['results']['bindings']
     doi_list = [b['doi']['value'] for b in bindings]
     uri_list = [b['uri']['value'] for b in bindings]
-    return dict(zip(doi_list, uri_list))
+    return dict(list(zip(doi_list, uri_list)))
 
 parms = get_parms()
 data_in = read_csv_fp(sys.stdin)
@@ -61,7 +61,7 @@ vivo_pubs = get_vivo_academic_articles(parms)
 print_err('{} publications found in VIVO'.format(len(vivo_pubs)))
 # print >>sys.stderr, vivo_pubs
 
-for row, data in data_in.items():
+for row, data in list(data_in.items()):
     data_out[row] = data
 
     # name is not vivo.  These are the ones to add

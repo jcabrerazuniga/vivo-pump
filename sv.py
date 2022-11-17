@@ -57,7 +57,7 @@ def main():
     logger.setLevel(logging.DEBUG)
 
     return_code = 0
-    print datetime.now(), "Start"
+    print(datetime.now(), "Start")
     args = get_args()
 
     #   Create a Pump and use it to perform the requested actions based on arguments
@@ -65,10 +65,10 @@ def main():
     try:
         p = Pump(args.defn, args.src)
     except DefNotFoundException:
-        print args.defn, "definition file not found"
+        print(args.defn, "definition file not found")
         sys.exit(1)
     except InvalidDefException as invalid:
-        print "Invalid definition file", args.defn, "\n", invalid
+        print("Invalid definition file", args.defn, "\n", invalid)
         sys.exit(1)
 
     p.filter = not args.nofilters
@@ -85,33 +85,33 @@ def main():
 
     if args.action == 'get':
         n_rows = p.get()
-        print datetime.now(), n_rows, "rows in", args.src
+        print(datetime.now(), n_rows, "rows in", args.src)
     elif args.action == 'update':
         try:
             [add_graph, sub_graph] = p.update()
         except IOError:
-            print args.src, "file not found"
+            print(args.src, "file not found")
             return_code = 1
         else:
             add_file = open(args.rdfprefix + '_add.nt', 'w')
-            print >>add_file, add_graph.serialize(format='nt')
+            print(add_graph.serialize(format='nt'), file=add_file)
             add_file.close()
             sub_file = open(args.rdfprefix + '_sub.nt', 'w')
-            print >>sub_file, sub_graph.serialize(format='nt')
+            print(sub_graph.serialize(format='nt'), file=sub_file)
             sub_file.close()
-            print datetime.now(), len(add_graph), 'triples to add', len(sub_graph), 'triples to sub'
+            print(datetime.now(), len(add_graph), 'triples to add', len(sub_graph), 'triples to sub')
     elif args.action == 'summarize':
-        print p.summarize()
+        print(p.summarize())
     elif args.action == 'serialize':
-        print p.serialize()
+        print(p.serialize())
     elif args.action == 'test':
         test_result = p.test()
-        print test_result
+        print(test_result)
         if 'Check' in test_result:
             return_code = 1
     else:
-        print datetime.now(), "Unknown action.  Try sv -h for help"
-    print datetime.now(), "Finish"
+        print(datetime.now(), "Unknown action.  Try sv -h for help")
+    print(datetime.now(), "Finish")
     sys.exit(return_code)
 
 if __name__ == "__main__":

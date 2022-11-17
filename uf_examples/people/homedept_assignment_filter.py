@@ -20,19 +20,19 @@ homedept_shelve = shelve.open('deptid_exceptions.db')
 data_in = read_csv_fp(sys.stdin)
 data_out = {}
 reassign_count = 0
-for row, data in data_in.items():
+for row, data in list(data_in.items()):
     new_data = dict(data)
 
     # check each pattern
 
-    for pattern_string, action in homedept_shelve.items():
+    for pattern_string, action in list(homedept_shelve.items()):
         pattern = re.compile(pattern_string)
         if pattern.search(new_data['HOME_DEPT']) is not None:
             new_data['HOME_DEPT'] = action['assigned_deptid']
-            print >>sys.stderr, "Reassign from", data['HOME_DEPT'], 'to', new_data['HOME_DEPT']
+            print("Reassign from", data['HOME_DEPT'], 'to', new_data['HOME_DEPT'], file=sys.stderr)
             reassign_count += 1
     data_out[row] = new_data
-print >>sys.stderr, 'Reassign count', reassign_count
+print('Reassign count', reassign_count, file=sys.stderr)
 write_csv_fp(sys.stdout, data_out)
 homedept_shelve.close()
 

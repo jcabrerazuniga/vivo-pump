@@ -79,22 +79,22 @@ class ImproveJobCodeDescriptionTestCase(unittest.TestCase):
         from improve.improve import improve_jobcode_description
         in_title = "ASST PROF"
         out_title = improve_jobcode_description(in_title)
-        print out_title
+        print(out_title)
         self.assertEqual("Assistant Professor", out_title)
 
     def test_substitution_at_end(self):
         from improve.improve import improve_jobcode_description
         in_title = "RES ASO PROF & DIR"
         out_title = improve_jobcode_description(in_title)
-        print out_title
+        print(out_title)
         self.assertEqual("Research Associate Professor and Director", out_title)
 
     def test_preserve_unicode(self):
         from improve.improve import improve_jobcode_description
-        in_title = u"CRD TECH PRG 2"
+        in_title = "CRD TECH PRG 2"
         out_title = improve_jobcode_description(in_title)
-        print out_title
-        self.assertEqual(u"Coordinator Technician Program 2", out_title)
+        print(out_title)
+        self.assertEqual("Coordinator Technician Program 2", out_title)
 
 
 class ImproveCourseTitleTestCase(unittest.TestCase):
@@ -102,22 +102,22 @@ class ImproveCourseTitleTestCase(unittest.TestCase):
         from improve.improve import improve_course_title
         in_title = "INTRO TO STAT"
         out_title = improve_course_title(in_title)
-        print out_title
+        print(out_title)
         self.assertEqual("Introduction to Statistics", out_title)
 
     def test_substitution_at_end(self):
         from improve.improve import improve_course_title
         in_title = "HIST OF HLTHCARE"
         out_title = improve_course_title(in_title)
-        print out_title
+        print(out_title)
         self.assertEqual("History of Healthcare", out_title)
 
     def test_preserve_unicode(self):
         from improve.improve import improve_course_title
-        in_title = u"SPEC TOP IN PRAC"
+        in_title = "SPEC TOP IN PRAC"
         out_title = improve_course_title(in_title)
-        print out_title
-        self.assertEqual(u"Special Topics in Practice", out_title)
+        print(out_title)
+        self.assertEqual("Special Topics in Practice", out_title)
 
 
 class ImproveTitleTestCase(unittest.TestCase):
@@ -125,35 +125,35 @@ class ImproveTitleTestCase(unittest.TestCase):
         from improve.improve import improve_title
         in_title = " hiv in fla, a multi-ctr  trial  "
         out_title = improve_title(in_title)
-        print out_title
+        print(out_title)
         self.assertEqual("HIV in Florida, a Multi-Center Trial", out_title)
 
     def test_substitution_at_end(self):
         from improve.improve import improve_title
         in_title = "Agricultural Engineering Bldg"
         out_title = improve_title(in_title)
-        print out_title
+        print(out_title)
         self.assertEqual("Agricultural Engineering Building", out_title)
 
     def test_preserve_unicode(self):
         from improve.improve import improve_title
-        in_title = u"François Börner"
+        in_title = "François Börner"
         out_title = improve_title(in_title)
-        print out_title
-        self.assertEqual(u"François Börner", out_title)
+        print(out_title)
+        self.assertEqual("François Börner", out_title)
 
     def test_comma_spacing(self):
         from improve.improve import improve_title
         in_title = "a big,fat comma"
         out_title = improve_title(in_title)
-        print out_title
+        print(out_title)
         self.assertEqual("A Big, Fat Comma", out_title)
 
     def test_apostrophe(self):
         from improve.improve import improve_title
         in_title = "Tom's"
         out_title = improve_title(in_title)
-        print out_title
+        print(out_title)
         self.assertEqual("Tom's", out_title)
 
 
@@ -181,7 +181,7 @@ class ImproveDollarAmountTestCase(unittest.TestCase):
         in_string = "A6"
         with self.assertRaises(InvalidDataException):
             out_string = improve_dollar_amount(in_string)
-            print out_string
+            print(out_string)
 
 
 class ImproveDateTestCase(unittest.TestCase):
@@ -208,7 +208,7 @@ class ImproveDateTestCase(unittest.TestCase):
         in_string = "A6"
         with self.assertRaises(InvalidDataException):
             out_string = improve_date(in_string)
-            print out_string
+            print(out_string)
 
     def test_month_word(self):
         from improve.improve import improve_date
@@ -221,7 +221,7 @@ class ImproveDateTestCase(unittest.TestCase):
         in_string = "15-alg-9"
         with self.assertRaises(InvalidDataException):
             out_string = improve_date(in_string)
-            print out_string
+            print(out_string)
 
 
 class ImproveDeptIdTestCase(unittest.TestCase):
@@ -242,7 +242,7 @@ class ImproveDeptIdTestCase(unittest.TestCase):
         in_string = "A6"
         with self.assertRaises(InvalidDataException):
             out_string = improve_deptid(in_string)
-            print out_string
+            print(out_string)
 
 
 class ImproveSponsorAwardIdTestCase(unittest.TestCase):

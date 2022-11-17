@@ -16,14 +16,14 @@ from pump.vivopump import read_csv_fp, write_csv_fp
 data_in = read_csv_fp(sys.stdin)
 data_out = {}
 null_count = 0
-for row, data in data_in.items():
+for row, data in list(data_in.items()):
     new_data =dict(data)
-    for name, val in new_data.items():
+    for name, val in list(new_data.items()):
         if val == "NULL":
             new_data[name] = ""
             null_count += 1
     data_out[row] = new_data
-print >>sys.stderr, "NULL values replaced", null_count
+print("NULL values replaced", null_count, file=sys.stderr)
 write_csv_fp(sys.stdout, data_out)
 
 

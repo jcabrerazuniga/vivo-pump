@@ -38,7 +38,7 @@ print_err('total VIVO publishers: {}'.format(len(vivo_publishers)))
 
 row_out = 0
 
-for row, data in data_in.items():
+for row, data in list(data_in.items()):
     if 0 == row_out:
         # copy the header line so we don't end up with an empty file
         data_out[row_out] = data

@@ -6,7 +6,7 @@
 """
 
 import logging
-import httplib
+import http.client
 
 __author__ = "Michael Conlon"
 __copyright__ = "Copyright (c) 2016 Michael Conlon"
@@ -69,7 +69,7 @@ def get_person_vivo_pmids(uri, query_parms):
     a = vivo_query(query, query_parms)
     pmid = [x['pmid']['value'] for x in a['results']['bindings']]
     puri = [x['puri']['value'] for x in a['results']['bindings']]
-    return dict(zip(pmid, puri))
+    return dict(list(zip(pmid, puri)))
 
 
 def get_catalyst_pmids(first, middle, last, email, affiliation=None):
@@ -123,7 +123,7 @@ def get_catalyst_pmids_xml(first, middle, last, email, affiliation=None):
     affil_string = ''.join(['<Affiliation>' + aff + '</Affiliation>' for aff in affiliation])
 
     request = request.format(first, middle, last, email_string, affil_string)
-    webservice = httplib.HTTP(HOST)
+    webservice = http.client.HTTP(HOST)
     webservice.putrequest("POST", API_URL)
     webservice.putheader("Host", HOST)
     webservice.putheader("User-Agent", "Python post")
@@ -133,7 +133,7 @@ def get_catalyst_pmids_xml(first, middle, last, email, affiliation=None):
     webservice.send(request)
     statuscode, statusmessage, header = webservice.getreply()
     result = webservice.getfile().read()
-    logger.debug(u"Request {}\n\tStatus Code {} Message {} Header {}\n\tResult {}".format(request, statuscode,
+    logger.debug("Request {}\n\tStatus Code {} Message {} Header {}\n\tResult {}".format(request, statuscode,
                                                                                           statusmessage, header,
                                                                                           result))
     return result
@@ -162,9 +162,9 @@ def get_pubmed_entrez(pmid):
             if count > retries:
                 return {}
             sleep_seconds = start**count
-            print "<!-- Failed Entrez query. Count = " + str(count)+ \
+            print("<!-- Failed Entrez query. Count = " + str(count)+ \
                 " Will sleep now for " + str(sleep_seconds)+ \
-                " seconds and retry -->"
+                " seconds and retry -->")
             time.sleep(sleep_seconds)  # increase the wait time with each retry
     return records
 
@@ -189,7 +189,7 @@ def get_pubmed_paper(pmid):
     # Find the desired attributes in the record structures returned by Entrez
 
     for record in get_pubmed_entrez(pmid):
-        print "Entrez record:", dumps(record, indent=4)
+        print("Entrez record:", dumps(record, indent=4))
         article_id_list = record['PubmedData']['ArticleIdList']
         for article_id in article_id_list:
             attributes = article_id.attributes

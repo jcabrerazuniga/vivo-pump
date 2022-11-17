@@ -45,6 +45,6 @@ from pump.vivopump import read_csv
 names = read_csv("filters/publisher_name_filter.csv")
 
 for line in fileinput.input():
-    for row in names.values():
+    for row in list(names.values()):
         line = line.replace(row['original'], row['improved'])
     sys.stdout.write(line)

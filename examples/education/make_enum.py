@@ -18,7 +18,7 @@ def main():
     """
     Generate the enums for degrees
     """
-    print datetime.now(), "Start"
+    print(datetime.now(), "Start")
     parms = get_parms()
 
     #   person
@@ -81,7 +81,7 @@ def main():
 
     create_enum("date_enum.txt", query, parms, trim=7)
 
-    print datetime.now(), "End"
+    print(datetime.now(), "End")
 
 if __name__ == "__main__":
     main()

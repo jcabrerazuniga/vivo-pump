@@ -32,7 +32,7 @@ plan_enum = {plan_data[row]['short']: plan_data[row]['vivo'] for row in plan_dat
 vivo_types = get_vivo_types("?uri a uf:UFEntity . ?uri a foaf:Person .", parms)  # must match entity_sparql
 data_in = read_csv_fp(sys.stdin)
 data_out = {}
-for row, data in data_in.items():
+for row, data in list(data_in.items()):
     new_data =dict(data)
 
     #   Convert the source type to a VIVO type.  The source has an HR code.  Convert that to a VIVO person type URI

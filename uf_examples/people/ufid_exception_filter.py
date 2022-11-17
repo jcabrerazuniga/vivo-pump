@@ -19,15 +19,15 @@ ufid_exceptions = set(ufid_exception_shelve.keys())  # a set of ufids that will 
 data_in = read_csv_fp(sys.stdin)
 data_out = {}
 exempt_count = 0
-for row, data in data_in.items():
+for row, data in list(data_in.items()):
     new_data = dict(data)
     if new_data['UFID'] in ufid_exceptions:
-        for name in new_data.keys():
+        for name in list(new_data.keys()):
             if name != 'uri' and name != 'UFID':
                 new_data[name] = ''
         exempt_count += 1
     data_out[row] = new_data
-print >>sys.stderr, 'Exempt count', exempt_count
+print('Exempt count', exempt_count, file=sys.stderr)
 write_csv_fp(sys.stdout, data_out)
 ufid_exception_shelve.close()
 

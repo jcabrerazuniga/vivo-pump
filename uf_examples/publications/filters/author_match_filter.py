@@ -38,7 +38,7 @@ from disambiguate import utils
 
 parms = get_parms()
 data_in = read_csv_fp(sys.stdin)
-print >>sys.stderr, len(data_in)
+print(len(data_in), file=sys.stderr)
 
 # file_name = '/Users/asura/git/vivo-pump/author_list.csv'
 # @TODO: pass file name path as a command line parameter
@@ -61,7 +61,7 @@ display_name        | suffix  | first   | uri | remove| middle| corresponding | 
 Stienmetz, Jason L. |         | Jason   |     |       | L     |  true         | true| Stienmetz
 """
 
-for row_index, row_data in data_in.items():
+for row_index, row_data in list(data_in.items()):
 
     if row_data['uf'] == 'false':
         # Always put in the non-UF author as new
@@ -95,5 +95,5 @@ for row_index, row_data in data_in.items():
             data_out[row_out]['uri'] = ";".join(author_uris)
             action = 'Disambig'
 
-print >>sys.stderr, 'data out', len(data_out)
+print('data out', len(data_out), file=sys.stderr)
 write_csv_fp(sys.stdout, data_out)

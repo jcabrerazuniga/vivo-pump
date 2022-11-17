@@ -37,9 +37,9 @@ def get_entrez_record(pmid):
             if count > retries:
                 raise TimeOut
             sleep_seconds = start ** count
-            print "<!-- Failed Entrez query. Count = " + str(count) + \
+            print("<!-- Failed Entrez query. Count = " + str(count) + \
                   " Will sleep now for " + str(sleep_seconds) + \
-                  " seconds and retry -->"
+                  " seconds and retry -->")
             sleep(sleep_seconds)  # increase the wait time with each retry
     return record
 
@@ -335,36 +335,36 @@ def get_pubmed(pmid, author_uris=None):
     # Turn each author into a URI reference to an authorship
 
     pub['authorship_uris'] = []
-    for key, author in sorted(pub['authors'].items(), key=lambda x: x[0]):
+    for key, author in sorted(list(pub['authors'].items()), key=lambda x: x[0]):
         try:
             author_uri_set = find_author(author)
         except:
-            print "No last name for author", author
-            print "Pub\n", pub
-            print "Record\n", record
+            print("No last name for author", author)
+            print("Pub\n", pub)
+            print("Record\n", record)
             continue
         if len(author_uri_set) == 0:
             [add, author_uri] = make_author_rdf(author)
             ardf = ardf + add
-            print pmid, "Add", author, "at", author_uri
+            print(pmid, "Add", author, "at", author_uri)
         elif len(author_uri_set) == 1:
             author_uri = list(author_uri_set)[0]
-            print pmid, "Found", author, author_uri
+            print(pmid, "Found", author, author_uri)
         else:
             if author_uris is None:
                 author_uri = list(author_uri_set)[0]
-                print pmid, "Disambiguate", author, "from", author_uri_set
+                print(pmid, "Disambiguate", author, "from", author_uri_set)
             else:
                 possible_uri_set = author_uri_set.intersection(author_uris)
                 if len(possible_uri_set) == 1:
                     author_uri = list(possible_uri_set)[0]
                 else:
                     author_uri = list(possible_uri_set)[0]
-                    print pmid, "Disambiguate", author, "from", possible_uri_set
-            print "Disambiguate:"
-            print "  Possible authors in VIVO", author_uri_set
-            print "  Possible authors in Source", author_uris
-            print "  Selected author", author_uri
+                    print(pmid, "Disambiguate", author, "from", possible_uri_set)
+            print("Disambiguate:")
+            print("  Possible authors in VIVO", author_uri_set)
+            print("  Possible authors in Source", author_uris)
+            print("  Selected author", author_uri)
 
         [add, authorship_uri] = make_authorship_rdf(pub['pub_uri'], author_uri,
                                                     key, corresponding=False)

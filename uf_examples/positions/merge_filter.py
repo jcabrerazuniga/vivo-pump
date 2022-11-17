@@ -27,12 +27,12 @@ from pump.vivopump import read_csv_fp, write_csv_fp, get_vivo_positions, get_par
 
 parms = get_parms
 data_in = read_csv_fp(sys.stdin)
-print >>sys.stderr, len(data_in)
+print(len(data_in), file=sys.stderr)
 data_out = {}
 vivo_positions = get_vivo_positions(parms)  # get dictionary of position uri keyed by ufid, deptid, hr_title, start_date
-print >>sys.stderr, 'VIVO positions', len(vivo_positions)
+print('VIVO positions', len(vivo_positions), file=sys.stderr)
 
-for row, data in data_in.items():
+for row, data in list(data_in.items()):
     key = ';'.join([data['UFID'], data['DEPTID'], data['hr_title'], data['START_DATE']])
     data_out[row] = data
     if key in vivo_positions:  # ufid is in vivo and source
@@ -40,7 +40,7 @@ for row, data in data_in.items():
     else:  # key is in source, not in vivo
         data_out[row]['uri'] = ''
 
-print >>sys.stderr, 'data out', len(data_out)
+print('data out', len(data_out), file=sys.stderr)
 write_csv_fp(sys.stdout, data_out)
 
 

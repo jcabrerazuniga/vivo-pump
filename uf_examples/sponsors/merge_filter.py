@@ -27,14 +27,14 @@ from pump.vivopump import read_csv_fp, write_csv_fp, get_vivo_sponsorid, get_par
 
 parms = get_parms()
 if parms['verbose']:
-    print >>sys.stderr, parms
+    print(parms, file=sys.stderr)
 data_in = read_csv_fp(sys.stdin)
-print >>sys.stderr, len(data_in)
+print(len(data_in), file=sys.stderr)
 data_out = {}
 vivo_sponsors = get_vivo_sponsorid(parms)  # get dictionary of sponsor uri keyed by sponsorid
-print >>sys.stderr, 'VIVO sponsors', len(vivo_sponsors)
+print('VIVO sponsors', len(vivo_sponsors), file=sys.stderr)
 
-for row, data in data_in.items():
+for row, data in list(data_in.items()):
     new_data = dict(data)
     if data['sponsorid'] in vivo_sponsors:  # sponsorid is in vivo and source
         new_data['uri'] = vivo_sponsors[data['sponsorid']]
@@ -42,7 +42,7 @@ for row, data in data_in.items():
         new_data['uri'] = ''
     data_out[row] = new_data
 
-print >>sys.stderr, 'data out', len(data_out)
+print('data out', len(data_out), file=sys.stderr)
 write_csv_fp(sys.stdout, data_out)
 
 

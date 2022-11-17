@@ -42,7 +42,7 @@ class Pump(object):
         :param defn:  File name of file containing JSON pump definition
         :param src: file name of the csv file to contain VIVO data (get), or csv containing data to update VIVO (update)
         """
-        from vivopump import read_update_def, load_enum, DefNotFoundException
+        from .vivopump import read_update_def, load_enum, DefNotFoundException
 
         self.update_data = None
         self.original_graph = None
@@ -125,7 +125,7 @@ class Pump(object):
         :return: the string summary report
         :rtype: basestring
         """
-        from vivopump import make_get_query
+        from .vivopump import make_get_query
 
         result = str(datetime.now()) + " Pump Summary for " + self.json_def_filename + "\n" + \
             str(datetime.now()) + " Enumerations\n" + dumps(self.enum, indent=4) + "\n" + \
@@ -139,9 +139,9 @@ class Pump(object):
         :return: the string test report
         :rtype: basestring
         """
-        from vivopump import new_uri
+        from .vivopump import new_uri
         from SPARQLWrapper import SPARQLExceptions
-        import urllib2
+        import urllib.request, urllib.error, urllib.parse
 
         result = str(datetime.now()) + " Test results" + "\n" + \
             "Update definition\t" + self.json_def_filename + " read.\n" + \
@@ -162,13 +162,13 @@ class Pump(object):
             uri = new_uri(self.query_parms)
             result += "Sample new uri\t" + uri + "\n" + \
                 "Simple VIVO is ready for use.\n"
-        except urllib2.HTTPError as herror:
+        except urllib.error.HTTPError as herror:
             result += "Connection to VIVO failed\t" + str(herror) + "\n" + \
                 "Check your Simple VIVO configuration and your VIVO permissions.\n"
         except SPARQLExceptions.EndPointNotFound as notfound:
             result += "Connection to VIVO failed\t" + str(notfound) + "\n" + \
                 "Check your Simple VIVO configuration and your VIVO API.\n"
-        except urllib2.URLError as uerror:
+        except urllib.error.URLError as uerror:
             result += "Connection to VIVO failed\t" + str(uerror) + "\n" + \
                 "Check your Simple VIVO configuration and your VIVO API.\n"
 
@@ -189,7 +189,7 @@ class Pump(object):
         Prepare for the update, getting graph and update_data.  Then do the update, producing triples
         :return: list(graph, graph): The add and sub graphs for performing the update
         """
-        from vivopump import read_csv, get_graph
+        from .vivopump import read_csv, get_graph
         from rdflib import Graph
         import os.path
         import time
@@ -200,8 +200,8 @@ class Pump(object):
         #   Narrow the update_def to include only columns that appear in the update_data
 
         new_update_columns = {}
-        for name, path in self.update_def['column_defs'].items():
-            if name in self.update_data[self.update_data.keys()[0]].keys():
+        for name, path in list(self.update_def['column_defs'].items()):
+            if name in list(self.update_data[list(self.update_data.keys())[0]].keys()):
                 new_update_columns[name] = path
         self.update_def['column_defs'] = new_update_columns
 
@@ -215,16 +215,16 @@ class Pump(object):
         for s, p, o in self.original_graph:
             self.update_graph.add((s, p, o))
 
-        logger.info(u'Graphs ready for processing. Original has {} triples.  Update graph has {} triples.'.format(
+        logger.info('Graphs ready for processing. Original has {} triples.  Update graph has {} triples.'.format(
             len(self.original_graph), len(self.update_graph)))
-        logger.info(u'Updates ready for processing. {} rows in update.'.format(len(self.update_data)))
+        logger.info('Updates ready for processing. {} rows in update.'.format(len(self.update_data)))
 
         if len(self.enum) == 0:
-            logger.info(u"No enumerations")
+            logger.info("No enumerations")
         else:
-            for key in self.enum.keys():
+            for key in list(self.enum.keys()):
                 logger.info(
-                    u"Enumeration {} modified {}. {} entries in get enum.  {} entries in update enum".format(
+                    "Enumeration {} modified {}. {} entries in get enum.  {} entries in update enum".format(
                         key, time.ctime(os.path.getmtime(key)), len(self.enum[key]['get']),
                         len(self.enum[key]['update'])))
         return self.__do_update()
@@ -236,15 +236,15 @@ class Pump(object):
 
         :return:  Number of rows of data
         """
-        from vivopump import vivo_query, make_get_data, unique_path, make_get_query, read_csv, write_csv
+        from .vivopump import vivo_query, make_get_data, unique_path, make_get_query, read_csv, write_csv
         from improve.improve import improve
         import codecs
 
         #   Generate the get query, execute the query, shape the query results into the return object
 
         query = make_get_query(self.update_def)
-        logger.debug(u"do_get query_parms\n{}".format(self.query_parms))
-        logger.debug(u"do_get query\n{}".format(query))
+        logger.debug("do_get query_parms\n{}".format(self.query_parms))
+        logger.debug("do_get query\n{}".format(query))
         result_set = vivo_query(query, self.query_parms)
         data = make_get_data(self.update_def, result_set)
 
@@ -268,10 +268,10 @@ class Pump(object):
                         #   Warn/correct if path is unique and VIVO is not
 
                         if unique_path(path) and len(data[uri][name]) > 1:
-                            logger.warning(u"VIVO has non-unique values for unique path {} at {} values {}".
+                            logger.warning("VIVO has non-unique values for unique path {} at {} values {}".
                                            format(name, uri, data[uri][name]))
                             data[uri][name] = {next(iter(data[uri][name]))}  # Pick one element from multi-valued set
-                            logger.warning(u"Using {}", data[uri][name])
+                            logger.warning("Using {}", data[uri][name])
 
                         #   Handle filters
 
@@ -281,7 +281,7 @@ class Pump(object):
                                 was_string = x
                                 new_string = improve(path[len(path) - 1]['object']['filter'], x)
                                 if was_string != new_string:
-                                    logger.debug(u"{} {} {} FILTER IMPROVED {} to {}".
+                                    logger.debug("{} {} {} FILTER IMPROVED {} to {}".
                                                  format(uri, name, path[len(path) - 1]['object']['filter'],
                                                         was_string, new_string))
                                 a.add(new_string)
@@ -297,7 +297,7 @@ class Pump(object):
                                 if val != '':
                                     a.add(val)
                                 else:
-                                    logger.warning(u"WARNING: Unable to find {} in {}. Blank substituted in {}".
+                                    logger.warning("WARNING: Unable to find {} in {}. Blank substituted in {}".
                                                    format(x, enum_name, self.out_filename))
                             data[uri][name] = a
 
@@ -319,7 +319,7 @@ class Pump(object):
         try:
             order = sorted(data, key=lambda rown: data[rown][sort_column_name])
         except KeyError:
-            logger.error(u"{} in order_by not found.  No such column name. Sorting by uri.".
+            logger.error("{} in order_by not found.  No such column name. Sorting by uri.".
                          format(sort_column_name))
             order = sorted(data, key=lambda rown: data[rown]['uri'])
         row = 1
@@ -338,7 +338,7 @@ class Pump(object):
         :return: None
         """
 
-        logger.info(u"Merge Info\n".format(merges))
+        logger.info("Merge Info\n".format(merges))
         for key in merges:
             primary_uri = merges[key]['primary']
             if primary_uri is not None:
@@ -364,7 +364,7 @@ class Pump(object):
         self.update_graph.remove((None, None, uri))
         after = len(self.update_graph)
         removed = before - after
-        logger.debug(u"REMOVING {} triples for {} on row {}".format(removed, uri, row))
+        logger.debug("REMOVING {} triples for {} on row {}".format(removed, uri, row))
         return removed
 
     def __do_update(self):
@@ -373,11 +373,11 @@ class Pump(object):
         rdf as necessary to process requested add, change, delete
         """
         from rdflib import URIRef, RDF
-        from vivopump import new_uri, prepare_column_values, PathLengthException
+        from .vivopump import new_uri, prepare_column_values, PathLengthException
 
         merges = {}
 
-        for row, data_update in self.update_data.items():
+        for row, data_update in list(self.update_data.items()):
 
             # Create a URI if empty
 
@@ -387,7 +387,7 @@ class Pump(object):
                 #   Since the new uri does not have triples for the columns in the spreadsheet, each will be added
 
                 uri_string = new_uri(self.query_parms)
-                logger.debug(u"Adding an entity for row {}. Will be added at {}".format(row, uri_string))
+                logger.debug("Adding an entity for row {}. Will be added at {}".format(row, uri_string))
                 uri = URIRef(uri_string)
                 self.update_graph.add((uri, RDF.type, self.update_def['entity_def']['type']))
 
@@ -396,7 +396,7 @@ class Pump(object):
             else:
                 uri = URIRef(data_update['uri'].strip())
                 if (uri, None, None) not in self.update_graph:
-                    logger.debug(u"Adding an entity for row {}. Will be added at {}".format(row, str(uri)))
+                    logger.debug("Adding an entity for row {}. Will be added at {}".format(row, str(uri)))
                     self.update_graph.add((uri, RDF.type, self.update_def['entity_def']['type']))
 
             self.entity_uri = uri
@@ -430,8 +430,8 @@ class Pump(object):
             #   For this row, process all the column_defs and then process closure defs if any.  Closures allow
             #   columns to be "reused" providing additional paths from the row entity to entities in the paths.
 
-            for column_name, column_def in self.update_def['column_defs'].items() + \
-                    self.update_def.get('closure_defs', {}).items():
+            for column_name, column_def in list(self.update_def['column_defs'].items()) + \
+                    list(self.update_def.get('closure_defs', {}).items()):
 
                 #   Skip any columns in the data that are not in the update_def
 
@@ -441,7 +441,7 @@ class Pump(object):
                 #   Skip the column if it is empty
 
                 if data_update[column_name] == '':
-                    logger.debug(u"Skipping blank value. row {} column {}".format(row, column_name))
+                    logger.debug("Skipping blank value. row {} column {}".format(row, column_name))
                     continue
 
                 #   Process the column values, returning a list of RDF elements
@@ -461,9 +461,9 @@ class Pump(object):
                 elif len(column_def) == 2:
                     self.__do_two_step_update(row, column_name, self.entity_uri, column_def, data_update)
                 elif len(column_def) == 1:
-                    vivo_objs = {unicode(o): o for s, p, o in
+                    vivo_objs = {str(o): o for s, p, o in
                                  self._get_step_triples(self.entity_uri, last_def)}
-                    logger.debug(u"{} {} {} {} {}".format(row, column_name, column_values, self.entity_uri, vivo_objs))
+                    logger.debug("{} {} {} {} {}".format(row, column_name, column_values, self.entity_uri, vivo_objs))
                     self.__do_the_update(row, column_name, self.entity_uri, last_def, column_values, vivo_objs)
 
         if any(merges):
@@ -472,9 +472,9 @@ class Pump(object):
         #   Return the add and sub graphs representing the changes that need to be made to the original
 
         add = self.update_graph - self.original_graph  # Triples in update that are not in original
-        logger.info(u"Triples to add\n{}".format(add.serialize(format='nt')))
+        logger.info("Triples to add\n{}".format(add.serialize(format='nt')))
         sub = self.original_graph - self.update_graph  # Triples in original that are not in update
-        logger.info(u"Triples to sub\n{}".format(sub.serialize(format='nt')))
+        logger.info("Triples to sub\n{}".format(sub.serialize(format='nt')))
         return [add, sub]
 
     def __do_three_step_update(self, row, column_name, uri, path, data_update):
@@ -489,7 +489,7 @@ class Pump(object):
         :return: Changes in the update_graph
         """
         from rdflib import RDF, RDFS, Literal, URIRef
-        from vivopump import new_uri
+        from .vivopump import new_uri
 
         step_def = path[0]
         step_uris = [o for s, p, o in self._get_step_triples(uri, step_def)]
@@ -514,7 +514,7 @@ class Pump(object):
 
             step_uri = step_uris[0]
             if len(step_uris) > 1:
-                logger.warning(u"WARNING: Single predicate {} has {} values: {}. Using {}".
+                logger.warning("WARNING: Single predicate {} has {} values: {}. Using {}".
                                format(path[0]['object']['name'], len(step_uris), step_uris, step_uri))
             self.__do_two_step_update(row, column_name, step_uri, path[1:], data_update)
         return None
@@ -537,7 +537,7 @@ class Pump(object):
         :return: alterations in update graph
         """
         from rdflib import RDF, RDFS, Literal, URIRef
-        from vivopump import new_uri, prepare_column_values
+        from .vivopump import new_uri, prepare_column_values
 
         step_def = column_def[0]
 
@@ -556,7 +556,7 @@ class Pump(object):
         vivo_objs = {}
         for step_uri in step_uris:
             for s, p, o in self._get_step_triples(step_uri, column_def[1]):
-                vivo_objs[unicode(o)] = [o, step_uri]
+                vivo_objs[str(o)] = [o, step_uri]
 
         #   Nasty hack below.  The predicate property "single" appears to have two meanings.  One has to do
         #   with the semantic graph and one has to do with the cardinality of the data column.  These are not
@@ -572,14 +572,14 @@ class Pump(object):
                                               column_name)
         column_def[1]['predicate']['single'] = predicate2_cardinality
 
-        vivo_values = [vivo_objs[x][0] for x in vivo_objs.keys()]
-        if unicode(column_values[0]).lower() == 'none':
+        vivo_values = [vivo_objs[x][0] for x in list(vivo_objs.keys())]
+        if str(column_values[0]).lower() == 'none':
             add_values = set()
             sub_values = set(vivo_values)
         else:
             add_values = set(column_values) - set(vivo_values)
             sub_values = set(vivo_values) - set(column_values)
-            logger.debug(u"Two step SET COMPARE\n\tRow {}\n\tColumn {}\n\tSource values {}\n\tVIVO values {}" +
+            logger.debug("Two step SET COMPARE\n\tRow {}\n\tColumn {}\n\tSource values {}\n\tVIVO values {}" +
                          "\n\tAdd values {}\n\tSub values {}\n\tStep_uris {}".
                          format(row, column_name, column_values, vivo_values, add_values, sub_values, step_uris))
 
@@ -628,7 +628,7 @@ class Pump(object):
                 #   assertions
 
                 for leaf_value in sub_values:
-                    step_uri = vivo_objs[unicode(leaf_value)][1]
+                    step_uri = vivo_objs[str(leaf_value)][1]
                     self.update_graph.remove((uri, step_def['predicate']['ref'], step_uri))
                     self.update_graph.remove((step_uri, None, None))
             else:
@@ -636,7 +636,7 @@ class Pump(object):
                 #   Handle single intermediary, possibly multiple leaves, by removing each leaf from the intermediary
                 #   Then check to see if the intermediary has any remaining leaf assertions and remove if empty
 
-                step_uri = vivo_objs[unicode(next(iter(sub_values)))][1]
+                step_uri = vivo_objs[str(next(iter(sub_values)))][1]
                 for leaf_value in sub_values:
                     self.update_graph.remove((step_uri, None, leaf_value))
                 g = self.update_graph.triples((step_uri, column_def[1]['predicate']['ref'], None))
@@ -663,12 +663,12 @@ class Pump(object):
         :param vivo_objs: dict of object Literals keyed by string value of literal
         :return: None
         """
-        from vivopump import make_rdf_term_from_source
+        from .vivopump import make_rdf_term_from_source
 
         #   Compare VIVO to Input and update as indicated
 
         if len(column_values) == 1:
-            column_string = unicode(column_values[0])
+            column_string = str(column_values[0])
             if column_string == '':
                 return None  # No action required if spreadsheet value is empty
 
@@ -676,47 +676,47 @@ class Pump(object):
 
             elif step_def['predicate']['single'] == 'boolean':
                 if column_string == '1':
-                    logger.debug(u"Add boolean value {} to {}".format(step_def['object']['value'], str(uri)))
+                    logger.debug("Add boolean value {} to {}".format(step_def['object']['value'], str(uri)))
                     self.update_graph.add((uri, step_def['predicate']['ref'],
                                           make_rdf_term_from_source(step_def['object']['value'], step_def)))
                 else:
-                    logger.debug(u"Sub boolean value {} from {}".format(step_def['object']['value'], str(uri)))
+                    logger.debug("Sub boolean value {} from {}".format(step_def['object']['value'], str(uri)))
                     self.update_graph.remove((uri, step_def['predicate']['ref'],
                                              make_rdf_term_from_source(step_def['object']['value'], step_def)))
 
             #   None processing
 
             elif column_string == 'None':
-                logger.debug(u"Remove {} from {}".format(column_name, str(uri)))
-                for vivo_object in vivo_objs.values():
+                logger.debug("Remove {} from {}".format(column_name, str(uri)))
+                for vivo_object in list(vivo_objs.values()):
                     self.update_graph.remove((uri, step_def['predicate']['ref'], vivo_object))
-                    logger.debug(u"{} {} {}".format(uri, step_def['predicate']['ref'], vivo_object))
+                    logger.debug("{} {} {}".format(uri, step_def['predicate']['ref'], vivo_object))
 
             #   Add value processing
 
             elif len(vivo_objs) == 0:
-                logger.debug(u"Adding {} {}".format(column_name, column_string))
+                logger.debug("Adding {} {}".format(column_name, column_string))
                 self.update_graph.add((uri, step_def['predicate']['ref'], column_values[0]))  # Literal or URIRef
 
             #   Update value processing
 
             else:
 
-                for vivo_object in vivo_objs.values():
+                for vivo_object in list(vivo_objs.values()):
                     if vivo_object == column_values[0]:
                         continue  # No action required if vivo term is same as source
                     else:
                         self.update_graph.remove((uri, step_def['predicate']['ref'], vivo_object))
-                        logger.debug(u"REMOVE {} {} {}".format(row, column_name, unicode(vivo_object)))
+                        logger.debug("REMOVE {} {} {}".format(row, column_name, str(vivo_object)))
                         self.update_graph.add((uri, step_def['predicate']['ref'], column_values[0]))
-                        logger.debug(u"ADD {} {} {} \n\t step_def {} \n\tlang is {}".
+                        logger.debug("ADD {} {} {} \n\t step_def {} \n\tlang is {}".
                                      format(row, column_name, column_string, step_def, step_def['object'].get('lang',
                                                                                                               None)))
         else:
 
             #   Set comparison processing
 
-            logger.debug(u'SET COMPARE {} {} {} {}'.format(row, column_name, column_values, vivo_objs.values()))
+            logger.debug('SET COMPARE {} {} {} {}'.format(row, column_name, column_values, list(vivo_objs.values())))
             add_values = set(column_values) - set(vivo_objs.values())
             sub_values = set(vivo_objs.values()) - set(column_values)
             for value in add_values:
@@ -734,7 +734,7 @@ class Pump(object):
         :return:  Graph containing zero or more triples that match the criteria for the step
         """
         from rdflib import Graph, RDF
-        from vivopump import add_qualifiers, vivo_query, make_rdf_term
+        from .vivopump import add_qualifiers, vivo_query, make_rdf_term
 
         def step_graph(uris, pred, otype=None, graph=self.update_graph):
             """
@@ -767,9 +767,9 @@ class Pump(object):
             :return: the sieved closure graph
             """
 
-            print "\nBeginning Closure Graph for", column_name
+            print("\nBeginning Closure Graph for", column_name)
             for (s, p, o) in sgc.triples((None, None, None)):
-                print s, p, o
+                print(s, p, o)
 
             if len(sgc) == 0:
                 return sgc  # Nothing to sieve
@@ -779,15 +779,15 @@ class Pump(object):
                 sg = step_graph([self.entity_uri], pred, otype, graph=self.original_graph)
                 if len(sg) == 0 or len(self.update_def['column_defs'][column_name]) == 1:
                     return sg
-                print "step 0 graph"
+                print("step 0 graph")
                 for (s, p, o) in sg.triples((None, None, None)):
-                    print s, p, o
+                    print(s, p, o)
                 for step in self.update_def['column_defs'][column_name][1:]:
                     sg = step_graph([y for y in sg.objects(None, None)], step['predicate']['ref'],
                                     step['object'].get('type', None), graph=self.original_graph)
-                    print "next step graph"
+                    print("next step graph")
                     for (s, p, o) in sg.triples((None, None, None)):
-                        print s, p, o
+                        print(s, p, o)
                 if len(sg) == 0:
                     return sg  # column path is empty, so nothing in the closure can match
 
@@ -799,9 +799,9 @@ class Pump(object):
                     if sgco in sg.objects(None, None):
                         sgr.add((sgcs, sgcp, sgco))
 
-                print "reduced step graph"
+                print("reduced step graph")
                 for (s, p, o) in sgr.triples((None, None, None)):
-                    print s, p, o
+                    print(s, p, o)
 
             return sgr
         
@@ -813,7 +813,7 @@ class Pump(object):
             # step_def['predicate']['ref'], step_def['object'].get('type', None)
 
             for (s, p, o) in g.triples((None, None, None)):
-                print unicode(s), unicode(p), unicode(o)
+                print(str(s), str(p), str(o))
 
             #   If the step_def is in a closure, and its the last step in the closure, then the
             #   closure triples must be sieved against the objects defined by the column.
@@ -828,11 +828,11 @@ class Pump(object):
             q = 'select (?' + step_def['object']['name'] + ' as ?o) where { <' + str(uri) + '> <' + \
                 str(step_def['predicate']['ref']) + '> ?' + step_def['object']['name'] + ' . \n' + \
                 add_qualifiers([step_def]) + ' }\n'
-            logger.debug(u"Qualified Step Triples Query {}".format(q))
+            logger.debug("Qualified Step Triples Query {}".format(q))
             result_set = vivo_query(q, self.query_parms)  # SLOW
             g = Graph()
             for binding in result_set['results']['bindings']:
                 o = make_rdf_term(binding['o'])
                 g.add((uri, step_def['predicate']['ref'], o))
-        logger.debug(u"Step Triples {}".format(g.serialize(format='nt')))
+        logger.debug("Step Triples {}".format(g.serialize(format='nt')))
         return g

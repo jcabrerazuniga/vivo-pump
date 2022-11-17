@@ -27,12 +27,12 @@ from pump.vivopump import read_csv_fp, write_csv_fp, get_vivo_ccn, get_parms
 
 parms = get_parms()
 data_in = read_csv_fp(sys.stdin)
-print >>sys.stderr, len(data_in)
+print(len(data_in), file=sys.stderr)
 data_out = {}
 vivo_courses = get_vivo_ccn(parms)  # get dictionary of course uri keyed by ccn
-print >>sys.stderr, 'VIVO courses', len(vivo_courses)
+print('VIVO courses', len(vivo_courses), file=sys.stderr)
 
-for row, data in data_in.items():
+for row, data in list(data_in.items()):
     new_data = dict(data)
     if data['ccn'] in vivo_courses:  # ccn is in vivo and source
         new_data['uri'] = vivo_courses[data['ccn']]
@@ -40,7 +40,7 @@ for row, data in data_in.items():
         new_data['uri'] = ''
     data_out[row] = new_data
 
-print >>sys.stderr, 'data out', len(data_out)
+print('data out', len(data_out), file=sys.stderr)
 write_csv_fp(sys.stdout, data_out)
 
 

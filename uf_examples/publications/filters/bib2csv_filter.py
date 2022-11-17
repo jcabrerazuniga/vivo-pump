@@ -26,7 +26,7 @@ def bib2csv(bib_data):
     """
     csv_data = {}
     row = 0
-    col_names = set(y for x in bib_data.entries for y in x.keys())
+    col_names = set(y for x in bib_data.entries for y in list(x.keys()))
 
     for x in bib_data.entries:
         row += 1

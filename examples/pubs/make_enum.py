@@ -18,7 +18,7 @@ def main():
     """
     Generate the enums for publications
     """
-    print datetime.now(), "Start"
+    print(datetime.now(), "Start")
     parms = get_parms()
 
     #   person via Orcid
@@ -65,7 +65,7 @@ def main():
 
     create_enum("date_enum.txt", query, parms, trim=10)
 
-    print datetime.now(), "End"
+    print(datetime.now(), "End")
 
 if __name__ == "__main__":
     main()

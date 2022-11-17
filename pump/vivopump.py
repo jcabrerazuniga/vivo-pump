@@ -80,13 +80,13 @@ class UnicodeCsvReader(object):
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         """
         Read and split the csv row into fields
         """
-        row = self.csv_reader.next()
+        row = next(self.csv_reader)
         # now decode
-        return [unicode(cell, self.encoding, errors='ignore') for cell in row]
+        return [cell for cell in row]
 
     @property
     def line_num(self):
@@ -183,10 +183,10 @@ def write_csv_fp(fp, data, delimiter='|'):
     :param delimiter: field delimiter for output
     :return:
     """
-    assert(len(data.keys()) > 0)
+    assert(len(list(data.keys())) > 0)
 
     # create a list of var_names from the first row
-    var_names = data[data.keys()[0]].keys()
+    var_names = list(data[list(data.keys())[0]].keys())
     fp.write(delimiter.join(var_names) + '\n')
 
     for key in sorted(data.keys()):
@@ -208,9 +208,9 @@ def write_csv(filename, data, delimiter='|'):
     :return:
     """
     with open(filename, 'w') as f:
-        f.write(delimiter.join(data[data.keys()[0]].keys()) + '\n')
+        f.write(delimiter.join(list(data[list(data.keys())[0]].keys())) + '\n')
         for key in sorted(data.keys()):
-            f.write(delimiter.join(data[key].values()) + '\n')
+            f.write(delimiter.join(list(data[key].values())) + '\n')
 
 
 def replace_initials(s):
@@ -264,7 +264,7 @@ def get_vivo_types(selector, parms, separator=';'):
     a = vivo_query(q, parms)
     types = [x['types']['value'] for x in a['results']['bindings']]
     uri = [x['uri']['value'] for x in a['results']['bindings']]
-    return dict(zip(uri, types))
+    return dict(list(zip(uri, types)))
 
 
 def get_vivo_ufid(parms):
@@ -277,7 +277,7 @@ def get_vivo_ufid(parms):
     a = vivo_query(query, parms)
     ufid = [x['ufid']['value'] for x in a['results']['bindings']]
     uri = [x['uri']['value'] for x in a['results']['bindings']]
-    return dict(zip(ufid, uri))
+    return dict(list(zip(ufid, uri)))
 
 
 def get_vivo_publishers(parms):
@@ -290,7 +290,7 @@ def get_vivo_publishers(parms):
     a = vivo_query(query, parms)
     label = [key_string(x['label']['value']) for x in a['results']['bindings']]
     uri = [x['uri']['value'] for x in a['results']['bindings']]
-    return dict(zip(label, uri))
+    return dict(list(zip(label, uri)))
 
 
 def get_vivo_journals(parms):
@@ -305,7 +305,7 @@ def get_vivo_journals(parms):
     a = vivo_query(query, parms)
     issn = [x['issn']['value'] for x in a['results']['bindings']]
     uri = [x['uri']['value'] for x in a['results']['bindings']]
-    return dict(zip(issn, uri))
+    return dict(list(zip(issn, uri)))
 
 
 def get_vivo_ccn(parms):
@@ -320,7 +320,7 @@ def get_vivo_ccn(parms):
     a = vivo_query(query, parms)
     ccn = [x['ccn']['value'] for x in a['results']['bindings']]
     uri = [x['uri']['value'] for x in a['results']['bindings']]
-    return dict(zip(ccn, uri))
+    return dict(list(zip(ccn, uri)))
 
 
 def get_vivo_sponsorid(parms):
@@ -334,7 +334,7 @@ def get_vivo_sponsorid(parms):
     a = vivo_query(query, parms)
     sponsorid = [x['sponsorid']['value'] for x in a['results']['bindings']]
     uri = [x['uri']['value'] for x in a['results']['bindings']]
-    return dict(zip(sponsorid, uri))
+    return dict(list(zip(sponsorid, uri)))
 
 
 def get_vivo_authors(parms):
@@ -360,7 +360,7 @@ def get_vivo_authors(parms):
     a = vivo_query(query, parms)
     display_name = [x['display_name']['value'] for x in a['results']['bindings']]
     uri = [x['uri']['value'] for x in a['results']['bindings']]
-    return dict(zip(display_name, uri))
+    return dict(list(zip(display_name, uri)))
 
 
 def get_vivo_positions(parms):
@@ -387,7 +387,7 @@ def get_vivo_positions(parms):
     start_dates = [x['start_date']['value'] for x in a['results']['bindings']]
     keys = [';'.join(x) for x in zip(ufids, deptids, hr_titles, start_dates)]
     uri = [x['uri']['value'] for x in a['results']['bindings']]
-    return dict(zip(keys, uri))
+    return dict(list(zip(keys, uri)))
 
 
 def read_update_def(filename, prefix):
@@ -444,12 +444,12 @@ def read_update_def(filename, prefix):
         """
         from rdflib import URIRef
         if isinstance(current_object, dict):
-            for k in current_object.keys():
+            for k in list(current_object.keys()):
                 current_object[k] = fixit(current_object[k], prefix_dictionary)
         elif isinstance(current_object, list):
             for i in range(0, len(current_object)):
                 current_object[i] = fixit(current_object[i], prefix_dictionary)
-        elif isinstance(current_object, basestring):
+        elif isinstance(current_object, str):
             if current_object.startswith("http://"):
                 current_object = URIRef(current_object)
             elif current_object.startswith("xsd:"):
@@ -476,7 +476,7 @@ def read_update_def(filename, prefix):
         var_list = []
         k = b.find("column_defs")
         b = b[k:]
-        for var in defn['column_defs'].keys():
+        for var in list(defn['column_defs'].keys()):
             var_list.append(var)
             loc.append(b.find(var + '": ['))
         seq = sorted(loc)
@@ -490,18 +490,18 @@ def read_update_def(filename, prefix):
         :param a: update_def
         :return None
         """
-        col_names = a['column_defs'].keys()
+        col_names = list(a['column_defs'].keys())
 
         #   Test that each closure_def name can be found in the column_def names
 
-        for name in a.get('closure_defs', {}).keys():
+        for name in list(a.get('closure_defs', {}).keys()):
             if name not in col_names:
                 raise InvalidDefException(name + 'in closure_def, not in column_def.')
 
         #   Test for agreement between closure_def and column_def last step object type and datatype
 
         if 'closure_defs' in a:
-            for name in a.get('closure_defs').keys():
+            for name in list(a.get('closure_defs').keys()):
                 col_object = a['column_defs'][name][-1]['object']  # last object in the column_def
                 clo_object = a['closure_defs'][name][-1]['object']  # last object in the closure_def
                 if col_object.get('dataype', '') == clo_object.get('datatype', '') and \
@@ -535,7 +535,7 @@ def read_update_def(filename, prefix):
         Assign multiple to each object.  Object is multiple if any preceding predicate is not single
         """
         b = dict(a)
-        for name, path in b['column_defs'].items():
+        for name, path in list(b['column_defs'].items()):
             multiple = False
             for i in range(len(path)):
                 multiple = multiple or (b['column_defs'][name][i]['predicate']['single'] == False)
@@ -549,7 +549,7 @@ def read_update_def(filename, prefix):
                     b['column_defs'][name][i]['object']['name'] = name + '_' + str(len(path) - i - 1)
                     b['column_defs'][name][i]['last'] = False
         if 'closure_defs' in b:
-            for name, path in b['closure_defs'].items():
+            for name, path in list(b['closure_defs'].items()):
                 multiple = False
                 for i in range(len(path)):
                     multiple = multiple or (b['closure_defs'][name][i]['predicate']['single'] == False)
@@ -698,8 +698,8 @@ def get_graph(update_def, query_parms):
         p = URIRef(row['p']['value'])
         o = make_rdf_term(row['o'])
         a.add((s, p, o))
-    for column_name, path in update_def['column_defs'].items() + \
-            update_def.get('closure_defs', {}).items():
+    for column_name, path in list(update_def['column_defs'].items()) + \
+            list(update_def.get('closure_defs', {}).items()):
         update_query = make_update_query(update_def['entity_def']['entity_sparql'], path)
         if len(update_query) == 0:
             continue
@@ -742,7 +742,7 @@ def get_graph(update_def, query_parms):
                 if 't' in row:
                     a.add((o, RDF.type, make_rdf_term(row['t'])))
 
-        logger.debug(u"Triples in original graph {}".format(len(a)))
+        logger.debug("Triples in original graph {}".format(len(a)))
     return a
 
 
@@ -775,7 +775,7 @@ def vivo_query(query, parms):
     """
     from SPARQLWrapper import SPARQLWrapper, JSON
 
-    logger.debug(u"in vivo_query\n{}".format(parms))
+    logger.debug("in vivo_query\n{}".format(parms))
     sparql = SPARQLWrapper(parms['queryuri'])
     new_query = parms['prefix'] + '\n' + query
     sparql.setQuery(new_query)
@@ -858,7 +858,7 @@ def get_args():
     :return: args structure as defined by argparser
     """
     import argparse
-    import ConfigParser
+    import configparser
 
     program_defaults = {
         'action': 'summarize',
@@ -917,17 +917,17 @@ def get_args():
 
     if args.config is None:
         args.config = program_defaults['config']
-        logger.debug(u"No config file specified -- using hardcoded defaults")
+        logger.debug("No config file specified -- using hardcoded defaults")
     else:
-        logger.debug(u"Reading config file: {}".format(args.config))
+        logger.debug("Reading config file: {}".format(args.config))
 
     # Read the config parameters from the file specified in the command line
 
-    config = ConfigParser.ConfigParser()
+    config = configparser.ConfigParser()
     try:
         config.read(args.config)
     except IOError:
-        logger.error(u"Config file {} not found.".format(args.config))
+        logger.error("Config file {} not found.".format(args.config))
         sys.exit(1)
 
     # Config file values overwrite program defaults
@@ -936,17 +936,17 @@ def get_args():
         for name, val in config.items(section):
             program_defaults[name] = val
             if 'prefix' != name:
-                logger.debug(u"Param {} = {}".format(name, val))
+                logger.debug("Param {} = {}".format(name, val))
 
     # Non null command line values overwrite the config file values
 
-    for name, val in vars(args).items():
+    for name, val in list(vars(args).items()):
         if val is not None:
             program_defaults[name] = val
 
     # Put the final values back in args
 
-    for name, val in program_defaults.items():
+    for name, val in list(program_defaults.items()):
         if val == 'tab':
             val = '\t'
         vars(args)[name] = val
@@ -969,7 +969,7 @@ def get_parms():
     """
     parms = {}
     args = get_args()
-    for name, val in vars(args).items():
+    for name, val in list(vars(args).items()):
         if val is not None:
             parms[name] = val
     return parms
@@ -995,13 +995,13 @@ def make_get_query(update_def):
     :return: a sparql query string
     """
 
-    front_query = 'SELECT ?uri ?' + ' ?'.join(update_def['column_defs'].keys()) + '\nWHERE {\n    ' + \
+    front_query = 'SELECT ?uri ?' + ' ?'.join(list(update_def['column_defs'].keys())) + '\nWHERE {\n    ' + \
                   update_def['entity_def']['entity_sparql'] + '\n'
 
     # Fake recursion here to depth 3.  Could be replaced by real recursion to arbitrary path length
 
     middle_query = ""
-    for name, path in update_def['column_defs'].items():
+    for name, path in list(update_def['column_defs'].items()):
         middle_query += '    OPTIONAL {  ?uri <' + str(path[0]['predicate']['ref']) + '> ?'
         if len(path) == 1:
             middle_query += name + ' . ' + add_type_restriction(path[0]) + add_qualifiers(path) + ' }\n'
@@ -1055,7 +1055,7 @@ def make_get_data(update_def, result_set):
         uri = str(binding['uri']['value'])
         if uri not in data:
             data[uri] = {}
-        for name in ['uri'] + update_def['column_defs'].keys():
+        for name in ['uri'] + list(update_def['column_defs'].keys()):
             if name != 'uri':
                 last_step = update_def['column_defs'][name][len(update_def['column_defs'][name]) - 1]
             if name != 'uri' and last_step['predicate']['single'] == 'boolean':
@@ -1140,7 +1140,7 @@ def prepare_column_values(update_string, intra, step_def, enum, row, column_name
             try:
                 column_values[i] = enum[step_def['object']['enum']]['update'][column_values[i]]
             except KeyError:
-                logger.error(u"{} not found in enumeration.  Blank value substituted.".format(column_values[i]))
+                logger.error("{} not found in enumeration.  Blank value substituted.".format(column_values[i]))
                 column_values[i] = ''
 
     # Convert to rdflib terms
@@ -1163,7 +1163,7 @@ def load_enum(update_def):
     :return enumeration structure.  Pairs of dictionaries, one pair for each enumeration.  short -> vivo, vivo -> short
     """
     enum = {}
-    for path in update_def['column_defs'].values():
+    for path in list(update_def['column_defs'].values()):
         for step in path:
             if 'object' in step and 'enum' in step['object']:
                 enum_name = step['object']['enum']
@@ -1172,12 +1172,12 @@ def load_enum(update_def):
                     enum[enum_name]['get'] = {}
                     enum[enum_name]['update'] = {}
                     enum_data = read_csv(enum_name, delimiter='\t')
-                    for enum_datum in enum_data.values():
+                    for enum_datum in list(enum_data.values()):
                         try:
                             enum[enum_name]['get'][enum_datum['vivo']] = enum_datum['short']
                         except KeyError:
                             logger.error(
-                                u"Enumeration {} does not have required columns named short and vivo".format(enum_name))
+                                "Enumeration {} does not have required columns named short and vivo".format(enum_name))
                             raise KeyError
                         enum[enum_name]['update'][enum_datum['short']] = enum_datum['vivo']
     return enum

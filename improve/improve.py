@@ -160,7 +160,7 @@ def improve_course_title(s):
     s = s.lower()  # convert to lower
     s = s.title()  # uppercase each word
     s += ' '       # add a trailing space so we can find these abbreviated words throughout the string
-    t = unicode(s.replace(", ,", ","))
+    t = str(s.replace(", ,", ","))
     t = t.replace("  ", " ")
     t = t.replace("/", " @")
     t = t.replace("/", " @")  # might be two slashes in the input
@@ -306,7 +306,7 @@ def improve_jobcode_description(s):
     s = s.lower()  # convert to lower
     s = s.title()  # uppercase each word
     s += ' '       # add a trailing space so we can find these abbreviated words throughout the string
-    t = unicode(s.replace(", ,", ","))
+    t = str(s.replace(", ,", ","))
     t = t.replace("&", " and ")
     t = t.replace("  ", " ")
     t = t.replace("/", " @")
@@ -553,7 +553,7 @@ def improve_org_name(s):
     s = s.lower()  # convert to lower
     s = s.title()  # uppercase each word
     s += ' '    # add a trailing space so we can find these abbreviated words throughout the string
-    t = unicode(s.replace(", ,", ","))
+    t = str(s.replace(", ,", ","))
     t = t.replace("  ", " ")
     t = t.replace("/", " @")
     t = t.replace("/", " @")  # might be two slashes in the input

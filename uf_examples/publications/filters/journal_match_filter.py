@@ -37,7 +37,7 @@ vivo_journals = get_vivo_journals(parms)
 print_err('There are {} journals in VIVO'.format(len(vivo_journals)))
 # print_err(vivo_journals)
 
-for row, data in data_in.items():
+for row, data in list(data_in.items()):
     data_out[row] = data
 
     if data['issn'] not in vivo_journals:

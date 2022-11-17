@@ -22,11 +22,11 @@ class UtilsTests(unittest.TestCase):
         # d_copy = {'a': ['1']}
         actual = utils.append_to_dict_list(d, 'a', 2)
         expected = ['1', 2]
-        self.assertEquals(actual, expected)
+        self.assertEqual(actual, expected)
         # self.assertEquals(d, d_copy)
 
         actual = utils.append_to_dict_list(d, 'x', 99)
-        self.assertEquals(actual, [99])
+        self.assertEqual(actual, [99])
 
     def test_get_vivo_disambiguation_data_from_csv(self):
         """
@@ -73,7 +73,7 @@ class UtilsTests(unittest.TestCase):
         # import pprint
         # pprint.pprint(actual + expected)
         # pprint.pprint(expected)
-        self.assertEquals(expected, actual)
+        self.assertEqual(expected, actual)
 
 
 if __name__ == '__main__':

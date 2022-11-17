@@ -18,7 +18,7 @@ def main():
     """
     Generate the enums for concepts
     """
-    print datetime.now(), "Start"
+    print(datetime.now(), "Start")
     parms = get_parms()
 
     #   Concept
@@ -36,7 +36,7 @@ def main():
 
     create_enum("concept_enum.txt", query, parms)
 
-    print datetime.now(), "End"
+    print(datetime.now(), "End")
 
 if __name__ == "__main__":
     main()

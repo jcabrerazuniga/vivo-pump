@@ -20,7 +20,7 @@ class CatalystTestCase(unittest.TestCase):
         last = 'Nelson'
         email_list = ['drnelson@ufl.edu']
         result = get_catalyst_pmids_xml(first, middle, last, email_list)
-        print result
+        print(result)
         self.assertTrue(len(result) > 0)
 
     def test_get_catalyst_pmids(self):
@@ -30,7 +30,7 @@ class CatalystTestCase(unittest.TestCase):
         last = 'Nelson'
         email_list = ['drnelson@ufl.edu']
         result = get_catalyst_pmids(first, middle, last, email_list)
-        print len(result), "papers found"
+        print(len(result), "papers found")
         self.assertTrue(len(result) > 0)
 
 
@@ -47,7 +47,7 @@ class EntrezTestCase(unittest.TestCase):
         from json import dumps
         pmid = '21916639'
         result = get_pubmed_paper(pmid)
-        print dumps(result, indent=4)
+        print(dumps(result, indent=4))
         self.assertTrue(len(result) > 0)
 
 

@@ -19,15 +19,15 @@ uri_exceptions = set(uri_exception_shelve.keys())  # a set of uris that will not
 data_in = read_csv_fp(sys.stdin)
 data_out = {}
 exempt_count = 0
-for row, data in data_in.items():
+for row, data in list(data_in.items()):
     new_data = dict(data)
     if 'uri' in new_data and new_data['uri'] in uri_exceptions:
-        for name in new_data.keys():
+        for name in list(new_data.keys()):
             if name != 'uri' and name != 'UFID':
                 new_data[name] = ''
         exempt_count += 1
     data_out[row] = new_data
-print >>sys.stderr, 'Exempt count', exempt_count
+print('Exempt count', exempt_count, file=sys.stderr)
 write_csv_fp(sys.stdout, data_out)
 uri_exception_shelve.close()
 

@@ -75,8 +75,8 @@ def main():
     }
     test_results = run_tests(tests)
     for testid in sorted(test_results):
-        print testid.rjust(1 + max([len(x) for x in tests.keys()])), '\t', test_results[testid][0], "\t", \
-            test_results[testid][1]
+        print(testid.rjust(1 + max([len(x) for x in list(tests.keys())])), '\t', test_results[testid][0], "\t", \
+            test_results[testid][1])
 
 
 if __name__ == "__main__":

@@ -3,7 +3,7 @@
 utils.py - helper functions
 """
 
-from __future__ import print_function
+
 from sys import stderr
 import csv
 

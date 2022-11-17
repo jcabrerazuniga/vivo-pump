@@ -85,5 +85,5 @@ while current_date <= end_date:
 #   Generate the RDF
 
 triples_file = open('dates.rdf', 'w')
-print >>triples_file, g.serialize(format='nt')
+print(g.serialize(format='nt'), file=triples_file)
 triples_file.close()

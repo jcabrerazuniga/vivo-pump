@@ -17,7 +17,7 @@ from pump.vivopump import read_csv_fp, write_csv_fp
 data_in = read_csv_fp(sys.stdin)
 data_out = {}
 not_current = 0
-for row, data in data_in.items():
+for row, data in list(data_in.items()):
     new_data = dict(data)
     if new_data['current'] == 'no':  # the person has left.  Set their contact info to None
         not_current += 1
@@ -27,7 +27,7 @@ for row, data in data_in.items():
         new_data['UF_BUSINESS_FAX'] = 'None'
         new_data['UF_BUSINESS_PHONE'] = 'None'
     data_out[row] = new_data
-print >>sys.stderr, "Not current count", not_current
+print("Not current count", not_current, file=sys.stderr)
 write_csv_fp(sys.stdout, data_out)
 
 
